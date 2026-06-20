@@ -6,11 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#6C63FF"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.coderetain.app"
@@ -44,14 +39,17 @@
     "plugins": [
       "expo-sqlite",
       "expo-notifications",
-      "expo-splash-screen",
+      ["expo-splash-screen", {
+        "image": "./assets/splash-icon.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#6C63FF"
+      }],
       [
         "expo-build-properties",
         {
           "android": {
             "compileSdkVersion": 35,
             "targetSdkVersion": 35,
-            "buildToolsVersion": "35.0.0",
             "minSdkVersion": 24
           },
           "ios": {
