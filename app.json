@@ -45,8 +45,25 @@
       "expo-sqlite",
       "expo-notifications",
       "expo-splash-screen",
-      "expo-asset",
-      "expo-font"
-    ]
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0",
+            "minSdkVersion": 24
+          },
+          "ios": {
+            "deploymentTarget": "15.1"
+          }
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "11c9b656-9def-4386-baf7-0e393b6ffafe"
+      }
+    }
   }
 }
