@@ -1,0 +1,61 @@
+{
+  "app": {
+    "name": "CodeRetain",
+    "tagline": "Keep your edge"
+  },
+  "common": {
+    "loading": "Loading challenges...",
+    "correct": "✓ Correct!",
+    "incorrect": "✗ Incorrect",
+    "streak": "Day Streak",
+    "today": "Today",
+    "questions": "Q's"
+  },
+  "today": {
+    "complete": "Challenge Complete!",
+    "subtitle": "Great job! You've completed today's coding practice.",
+    "startOver": "Start Over"
+  },
+  "stats": {
+    "title": "Stats",
+    "totalAnswered": "Total Answered",
+    "streak": "Day Streak",
+    "last30Days": "Last 30 Days",
+    "categoryAccuracy": "Category Accuracy"
+  },
+  "settings": {
+    "title": "Settings",
+    "dailyReminder": "Daily Reminder",
+    "reminderLabel": "Daily Practice Reminder",
+    "reminderTime": "Reminder Time",
+    "difficulty": "Difficulty Level",
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "beginnerDesc": "Fundamentals & basics",
+    "intermediateDesc": "Practical problems",
+    "advancedDesc": "Expert-level challenges",
+    "language": "Language",
+    "languageLabel": "App Language",
+    "questionLanguage": "Question Language",
+    "questionLangEN": "English",
+    "questionLangZH": "中文",
+    "about": "About",
+    "version": "v1.0.0",
+    "description": "Daily 5-minute coding practice to sharpen your skills. Designed for developers who want to retain their edge in the age of AI."
+  },
+  "categories": {
+    "Regex": "Regex",
+    "SQL": "SQL",
+    "Git": "Git",
+    "Shell": "Shell",
+    "Design Patterns": "Design Patterns",
+    "Docker": "Docker",
+    "JavaScript": "JavaScript"
+  },
+  "difficulty": {
+    "Beginner": "Beginner",
+    "Intermediate": "Intermediate",
+    "Advanced": "Advanced"
+  }
+}

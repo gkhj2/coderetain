@@ -1,4 +1,4 @@
-﻿{
+{
   "expo": {
     "name": "CodeRetain",
     "slug": "coderetain",
@@ -26,12 +26,27 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "name": "CodeRetain",
+      "shortName": "CodeRetain",
+      "description": "Daily 5-minute coding practice to sharpen your skills",
+      "themeColor": "#6C63FF",
+      "backgroundColor": "#1A1A2E",
+      "preferRelatedApplications": false,
+      "scope": "/",
+      "startUrl": "/",
+      "barStyle": "black-translucent",
+      "lang": "en",
+      "display": "standalone",
+      "orientation": "portrait"
     },
     "plugins": [
       "expo-sqlite",
       "expo-notifications",
-      "expo-splash-screen"
+      "expo-splash-screen",
+      "expo-asset",
+      "expo-font"
     ]
   }
 }

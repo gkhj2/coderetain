@@ -1,4 +1,4 @@
-﻿export type QuestionCategory = 'Regex' | 'SQL' | 'Git' | 'Shell' | 'Design Patterns';
+﻿export type QuestionCategory = 'Regex' | 'SQL' | 'Git' | 'Shell' | 'Design Patterns' | 'Docker' | 'JavaScript';
 
 export type Difficulty = 'Beginner' | 'Intermediate' | 'Advanced';
 

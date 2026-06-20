@@ -226,6 +226,8 @@ export async function getCategoryAccuracy(): Promise<CategoryAccuracy[]> {
     'Git',
     'Shell',
     'Design Patterns',
+    'Docker',
+    'JavaScript',
   ];
 
   const result: CategoryAccuracy[] = [];
@@ -272,7 +274,7 @@ export async function setSetting(key: string, value: string): Promise<void> {
   );
 }
 
-export async function getWrongQuestions(todayCount: number): Promise<string[]> {
+export async function getWrongQuestions(): Promise<string[]> {
   const database = await getDatabase();
   const dateStr = new Date().toISOString().split('T')[0];
 

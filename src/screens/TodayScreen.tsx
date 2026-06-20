@@ -10,9 +10,10 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import ChallengeCard from '../components/ChallengeCard';
-import { Question, QuestionCategory } from '../types';
-import { bundledQuestions } from '../data/questions';
+import { Question } from '../types';
+import { getQuestions } from '../data';
 import { darkTheme, lightTheme, ThemeColors } from '../theme/colors';
 import {
   getTodayStats,
@@ -20,7 +21,7 @@ import {
   updateTimeSpent,
   getWrongQuestions,
   getSetting,
-} from '../database/db';
+} from '../database';
 
 function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
@@ -32,6 +33,7 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 export default function TodayScreen() {
+  const { t } = useTranslation();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const theme: ThemeColors = isDark ? darkTheme : lightTheme;
@@ -45,38 +47,36 @@ export default function TodayScreen() {
   const [totalAnswered, setTotalAnswered] = useState(0);
   const [completed, setCompleted] = useState(false);
   const [difficulty, setDifficulty] = useState('Beginner');
-  const [sessionStart, setSessionStart] = useState(Date.now());
 
-  const autoAdvanceRef = useRef<NodeJS.Timeout | null>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const autoAdvanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const loadSession = useCallback(async () => {
     const savedDifficulty = await getSetting('difficulty');
     const diff = savedDifficulty || 'Beginner';
     setDifficulty(diff);
 
-    // Get wrong questions for spaced repetition
-    const wrongIds = await getWrongQuestions(0);
+    // Read question language setting
+    const questionLang = await getSetting('questionLanguage');
+    const lang: 'en' | 'zh' = questionLang === 'zh' ? 'zh' : 'en';
+    const allQuestions = getQuestions(lang);
 
-    // Filter questions by difficulty
-    const filtered = bundledQuestions.filter((q) => {
+    const wrongIds = await getWrongQuestions();
+
+    const filtered = allQuestions.filter((q) => {
       if (diff === 'Beginner') return q.difficulty === 'Beginner';
       if (diff === 'Intermediate')
         return q.difficulty === 'Beginner' || q.difficulty === 'Intermediate';
-      return true; // Advanced includes all
+      return q.difficulty === 'Advanced';
     });
 
-    // Pick questions: prioritize wrong ones, then random
     const wrongQuestions = filtered.filter((q) => wrongIds.includes(q.id));
     const otherQuestions = filtered.filter((q) => !wrongIds.includes(q.id));
 
     const selected: Question[] = [];
-
-    // Add up to 3 wrong questions
     const shuffledWrong = shuffleArray(wrongQuestions);
     selected.push(...shuffledWrong.slice(0, Math.min(3, shuffledWrong.length)));
 
-    // Fill remaining with other questions
     const shuffledOthers = shuffleArray(otherQuestions);
     const remaining = 5 - selected.length;
     selected.push(...shuffledOthers.slice(0, remaining));
@@ -86,7 +86,6 @@ export default function TodayScreen() {
     setSelectedIndex(null);
     setShowResult(false);
     setCompleted(false);
-    setSessionStart(Date.now());
   }, []);
 
   const loadStats = useCallback(async () => {
@@ -102,14 +101,9 @@ export default function TodayScreen() {
       loadSession();
       loadStats();
 
-      // Track time
-      timerRef.current = setInterval(async () => {
-        const now = Date.now();
-        const elapsed = Math.floor((now - sessionStart) / 1000);
-        if (elapsed > 0) {
-          setTimeSpent((prev) => prev + 1);
-        }
-      }, 10000); // Update every 10 seconds
+      timerRef.current = setInterval(() => {
+        setTimeSpent((prev) => prev + 10);
+      }, 10000);
 
       return () => {
         if (timerRef.current) clearInterval(timerRef.current);
@@ -127,9 +121,8 @@ export default function TodayScreen() {
     const correct = index === currentQuestion.correctIndex;
 
     await recordAnswer(currentQuestion.id, currentQuestion.category, correct);
-    await updateTimeSpent(5); // Assume 5 seconds per question
+    await updateTimeSpent(5);
 
-    // Auto-advance after 2 seconds
     autoAdvanceRef.current = setTimeout(() => {
       if (currentIndex < questions.length - 1) {
         setCurrentIndex((prev) => prev + 1);
@@ -154,10 +147,10 @@ export default function TodayScreen() {
         <View style={styles.completedContainer}>
           <Ionicons name="trophy" size={80} color="#FFB74D" />
           <Text style={[styles.completedTitle, { color: theme.text }]}>
-            Challenge Complete!
+            {t('today.complete')}
           </Text>
           <Text style={[styles.completedSubtitle, { color: theme.textSecondary }]}>
-            Great job! You've completed today's coding practice.
+            {t('today.subtitle')}
           </Text>
           <View style={[styles.completedStats, { backgroundColor: theme.surface }]}>
             <View style={styles.completedStat}>
@@ -166,7 +159,7 @@ export default function TodayScreen() {
                 {streak}
               </Text>
               <Text style={[styles.completedStatLabel, { color: theme.textMuted }]}>
-                Day Streak
+                {t('common.streak')}
               </Text>
             </View>
             <View style={[styles.completedStatDivider, { backgroundColor: theme.border }]} />
@@ -176,7 +169,7 @@ export default function TodayScreen() {
                 {formatTime(timeSpent)}
               </Text>
               <Text style={[styles.completedStatLabel, { color: theme.textMuted }]}>
-                Today
+                {t('common.today')}
               </Text>
             </View>
             <View style={[styles.completedStatDivider, { backgroundColor: theme.border }]} />
@@ -186,7 +179,7 @@ export default function TodayScreen() {
                 {totalAnswered}
               </Text>
               <Text style={[styles.completedStatLabel, { color: theme.textMuted }]}>
-                Today Q's
+                {t('common.questions')}
               </Text>
             </View>
           </View>
@@ -195,7 +188,7 @@ export default function TodayScreen() {
             onPress={() => loadSession()}
           >
             <Ionicons name="refresh" size={20} color="#FFFFFF" />
-            <Text style={styles.startOverButtonText}>Start Over</Text>
+            <Text style={styles.startOverButtonText}>{t('today.startOver')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -207,7 +200,6 @@ export default function TodayScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header Stats */}
         <View style={styles.headerStats}>
           <View style={[styles.statBadge, { backgroundColor: theme.surface }]}>
             <Ionicons name="flame" size={16} color="#FFB74D" />
@@ -227,15 +219,9 @@ export default function TodayScreen() {
           </View>
         </View>
 
-        {/* Progress Bar */}
         {questions.length > 0 && (
           <View style={styles.progressContainer}>
-            <View
-              style={[
-                styles.progressBar,
-                { backgroundColor: theme.border },
-              ]}
-            >
+            <View style={[styles.progressBar, { backgroundColor: theme.border }]}>
               <View
                 style={[
                   styles.progressFill,
@@ -249,7 +235,6 @@ export default function TodayScreen() {
           </View>
         )}
 
-        {/* Question Card */}
         {currentQuestion ? (
           <View>
             <ChallengeCard
@@ -278,7 +263,9 @@ export default function TodayScreen() {
                     },
                   ]}
                 >
-                  {selectedIndex === currentQuestion.correctIndex ? '✓ Correct!' : '✗ Incorrect'}
+                  {selectedIndex === currentQuestion.correctIndex
+                    ? t('common.correct')
+                    : t('common.incorrect')}
                 </Text>
                 <Text style={[styles.explanationText, { color: theme.textSecondary }]}>
                   {currentQuestion.explanation}
@@ -290,7 +277,7 @@ export default function TodayScreen() {
           <View style={styles.loadingContainer}>
             <Ionicons name="hourglass-outline" size={48} color={theme.textMuted} />
             <Text style={[styles.loadingText, { color: theme.textSecondary }]}>
-              Loading challenges...
+              {t('common.loading')}
             </Text>
           </View>
         )}
@@ -300,125 +287,51 @@ export default function TodayScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 20,
-  },
+  container: { flex: 1 },
+  scrollContent: { flexGrow: 1, paddingBottom: 20 },
   headerStats: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    flexDirection: 'row', justifyContent: 'center', gap: 12,
+    paddingVertical: 16, paddingHorizontal: 16,
   },
   statBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    gap: 6,
+    flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 12, paddingVertical: 8,
+    borderRadius: 20, gap: 6,
   },
-  statBadgeText: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  progressContainer: {
-    paddingHorizontal: 16,
-    marginBottom: 8,
-  },
-  progressBar: {
-    height: 6,
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 3,
-  },
+  statBadgeText: { fontSize: 14, fontWeight: '700' },
+  progressContainer: { paddingHorizontal: 16, marginBottom: 8 },
+  progressBar: { height: 6, borderRadius: 3, overflow: 'hidden' },
+  progressFill: { height: '100%', borderRadius: 3 },
   explanationCard: {
-    marginHorizontal: 16,
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    marginTop: 4,
+    marginHorizontal: 16, padding: 16, borderRadius: 12,
+    borderWidth: 1, marginTop: 4,
   },
-  explanationLabel: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 8,
-  },
-  explanationText: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
+  explanationLabel: { fontSize: 16, fontWeight: '700', marginBottom: 8 },
+  explanationText: { fontSize: 14, lineHeight: 20 },
   loadingContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 100,
-    gap: 12,
+    flex: 1, alignItems: 'center', justifyContent: 'center',
+    paddingTop: 100, gap: 12,
   },
-  loadingText: {
-    fontSize: 16,
-  },
+  loadingText: { fontSize: 16 },
   completedContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    flex: 1, alignItems: 'center', justifyContent: 'center',
     paddingHorizontal: 32,
   },
-  completedTitle: {
-    fontSize: 28,
-    fontWeight: '800',
-    marginTop: 20,
-  },
-  completedSubtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginTop: 8,
-    lineHeight: 22,
-  },
+  completedTitle: { fontSize: 28, fontWeight: '800', marginTop: 20 },
+  completedSubtitle: { fontSize: 16, textAlign: 'center', marginTop: 8, lineHeight: 22 },
   completedStats: {
-    flexDirection: 'row',
-    borderRadius: 16,
-    padding: 20,
-    marginTop: 24,
-    width: '100%',
-    alignItems: 'center',
+    flexDirection: 'row', borderRadius: 16, padding: 20,
+    marginTop: 24, width: '100%', alignItems: 'center',
     justifyContent: 'space-around',
   },
-  completedStat: {
-    alignItems: 'center',
-    gap: 4,
-  },
-  completedStatDivider: {
-    width: 1,
-    height: 40,
-  },
-  completedStatValue: {
-    fontSize: 20,
-    fontWeight: '800',
-  },
-  completedStatLabel: {
-    fontSize: 11,
-    fontWeight: '500',
-  },
+  completedStat: { alignItems: 'center', gap: 4 },
+  completedStatDivider: { width: 1, height: 40 },
+  completedStatValue: { fontSize: 20, fontWeight: '800' },
+  completedStatLabel: { fontSize: 11, fontWeight: '500' },
   startOverButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 14,
-    borderRadius: 12,
-    marginTop: 24,
-    gap: 8,
+    flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 24, paddingVertical: 14,
+    borderRadius: 12, marginTop: 24, gap: 8,
   },
-  startOverButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+  startOverButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
 });

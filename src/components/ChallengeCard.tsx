@@ -7,6 +7,7 @@ import {
   useColorScheme,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { Question } from '../types';
 import { darkTheme, lightTheme, ThemeColors } from '../theme/colors';
 
@@ -25,6 +26,8 @@ const categoryIcons: Record<string, string> = {
   Git: 'git-branch',
   Shell: 'terminal',
   'Design Patterns': 'layers',
+  Docker: 'cube',
+  JavaScript: 'logo-javascript',
 };
 
 const categoryColors: Record<string, string> = {
@@ -33,6 +36,8 @@ const categoryColors: Record<string, string> = {
   Git: '#FFB74D',
   Shell: '#A78BFA',
   'Design Patterns': '#60A5FA',
+  Docker: '#2496ED',
+  JavaScript: '#F7DF1E',
 };
 
 export default function ChallengeCard({
@@ -43,6 +48,7 @@ export default function ChallengeCard({
   correctIndex,
   darkMode,
 }: ChallengeCardProps) {
+  const { t } = useTranslation();
   const theme: ThemeColors = darkMode ? darkTheme : lightTheme;
 
   const getOptionStyle = (index: number) => {
@@ -94,12 +100,12 @@ export default function ChallengeCard({
               { color: categoryColors[question.category] || theme.primary },
             ]}
           >
-            {question.category}
+            {t(`categories.${question.category}`, question.category)}
           </Text>
         </View>
         <View style={[styles.difficultyBadge, { backgroundColor: theme.surfaceLight }]}>
           <Text style={[styles.difficultyText, { color: theme.textSecondary }]}>
-            {question.difficulty}
+            {t('difficulty.' + question.difficulty)}
           </Text>
         </View>
       </View>

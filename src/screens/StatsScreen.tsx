@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import StreakCalendar from '../components/StreakCalendar';
 import { CategoryAccuracy } from '../types';
 import { darkTheme, lightTheme, ThemeColors } from '../theme/colors';
@@ -17,9 +18,10 @@ import {
   getCategoryAccuracy,
   getTotalQuestionsAnswered,
   getTodayStats,
-} from '../database/db';
+} from '../database';
 
 export default function StatsScreen() {
+  const { t } = useTranslation();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const theme: ThemeColors = isDark ? darkTheme : lightTheme;
@@ -55,6 +57,8 @@ export default function StatsScreen() {
     Git: 'git-branch',
     Shell: 'terminal',
     'Design Patterns': 'layers',
+    Docker: 'cube',
+    JavaScript: 'logo-javascript',
   };
 
   const categoryColors: Record<string, string> = {
@@ -63,21 +67,22 @@ export default function StatsScreen() {
     Git: '#FFB74D',
     Shell: '#A78BFA',
     'Design Patterns': '#60A5FA',
+    Docker: '#2496ED',
+    JavaScript: '#F7DF1E',
   };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={[styles.title, { color: theme.text }]}>Stats</Text>
+        <Text style={[styles.title, { color: theme.text }]}>{t('stats.title')}</Text>
 
-        {/* Overall Stats */}
         <View style={[styles.overallCard, { backgroundColor: theme.cardBackground }]}>
           <View style={styles.overallRow}>
             <View style={styles.overallItem}>
               <Ionicons name="flame" size={28} color="#FFB74D" />
               <Text style={[styles.overallValue, { color: theme.text }]}>{streak}</Text>
               <Text style={[styles.overallLabel, { color: theme.textMuted }]}>
-                Day Streak
+                {t('stats.streak')}
               </Text>
             </View>
             <View style={[styles.overallDivider, { backgroundColor: theme.border }]} />
@@ -87,18 +92,16 @@ export default function StatsScreen() {
                 {totalAnswered}
               </Text>
               <Text style={[styles.overallLabel, { color: theme.textMuted }]}>
-                Total Answered
+                {t('stats.totalAnswered')}
               </Text>
             </View>
           </View>
         </View>
 
-        {/* Streak Calendar */}
-        <Text style={[styles.sectionTitle, { color: theme.text }]}>Last 30 Days</Text>
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>{t('stats.last30Days')}</Text>
         <StreakCalendar data={calendarData} darkMode={isDark} />
 
-        {/* Category Accuracy */}
-        <Text style={[styles.sectionTitle, { color: theme.text }]}>Category Accuracy</Text>
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>{t('stats.categoryAccuracy')}</Text>
         <View style={[styles.categoryCard, { backgroundColor: theme.cardBackground }]}>
           {categoryData.map((cat) => {
             const accuracy = cat.total > 0 ? Math.round((cat.correct / cat.total) * 100) : 0;
@@ -115,7 +118,7 @@ export default function StatsScreen() {
                     <Ionicons name={iconName} size={16} color={color} />
                   </View>
                   <Text style={[styles.categoryName, { color: theme.text }]}>
-                    {cat.category}
+                    {t(`categories.${cat.category}`, cat.category)}
                   </Text>
                   <Text style={[styles.categoryAccuracy, { color: theme.textSecondary }]}>
                     {cat.total > 0 ? `${accuracy}%` : '—'}
@@ -125,10 +128,7 @@ export default function StatsScreen() {
                   <View
                     style={[
                       styles.barFill,
-                      {
-                        backgroundColor: color,
-                        width: `${barWidth}%`,
-                      },
+                      { backgroundColor: color, width: `${barWidth}%` },
                     ]}
                   />
                 </View>
@@ -145,98 +145,23 @@ export default function StatsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '800',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 8,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    paddingHorizontal: 16,
-    marginTop: 20,
-    marginBottom: 8,
-  },
-  overallCard: {
-    marginHorizontal: 16,
-    borderRadius: 16,
-    padding: 20,
-    marginTop: 4,
-  },
-  overallRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-  },
-  overallItem: {
-    alignItems: 'center',
-    gap: 4,
-  },
-  overallValue: {
-    fontSize: 28,
-    fontWeight: '800',
-  },
-  overallLabel: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  overallDivider: {
-    width: 1,
-    height: 50,
-  },
-  categoryCard: {
-    marginHorizontal: 16,
-    borderRadius: 16,
-    padding: 16,
-    marginTop: 4,
-  },
-  categoryRow: {
-    marginBottom: 16,
-  },
-  categoryHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-    gap: 8,
-  },
-  categoryIconCircle: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  categoryName: {
-    fontSize: 14,
-    fontWeight: '600',
-    flex: 1,
-  },
-  categoryAccuracy: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  barContainer: {
-    height: 8,
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  barFill: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  categoryCount: {
-    fontSize: 11,
-    marginTop: 4,
-    textAlign: 'right',
-  },
+  container: { flex: 1 },
+  scrollContent: { flexGrow: 1, paddingBottom: 20 },
+  title: { fontSize: 28, fontWeight: '800', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 },
+  sectionTitle: { fontSize: 18, fontWeight: '700', paddingHorizontal: 16, marginTop: 20, marginBottom: 8 },
+  overallCard: { marginHorizontal: 16, borderRadius: 16, padding: 20, marginTop: 4 },
+  overallRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' },
+  overallItem: { alignItems: 'center', gap: 4 },
+  overallValue: { fontSize: 28, fontWeight: '800' },
+  overallLabel: { fontSize: 12, fontWeight: '500' },
+  overallDivider: { width: 1, height: 50 },
+  categoryCard: { marginHorizontal: 16, borderRadius: 16, padding: 16, marginTop: 4 },
+  categoryRow: { marginBottom: 16 },
+  categoryHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 8 },
+  categoryIconCircle: { width: 30, height: 30, borderRadius: 15, justifyContent: 'center', alignItems: 'center' },
+  categoryName: { fontSize: 14, fontWeight: '600', flex: 1 },
+  categoryAccuracy: { fontSize: 14, fontWeight: '700' },
+  barContainer: { height: 8, borderRadius: 4, overflow: 'hidden' },
+  barFill: { height: '100%', borderRadius: 4 },
+  categoryCount: { fontSize: 11, marginTop: 4, textAlign: 'right' },
 });
-

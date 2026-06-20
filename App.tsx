@@ -2,9 +2,11 @@
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { View, Text, StyleSheet, useColorScheme, Animated } from 'react-native';
+import { View, Text, StyleSheet, useColorScheme, Animated, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as SplashScreen from 'expo-splash-screen';
+import { useTranslation } from 'react-i18next';
+import './src/i18n';
 import AppNavigator from './src/navigation/AppNavigator';
 import { darkTheme, lightTheme } from './src/theme/colors';
 
@@ -12,6 +14,7 @@ import { darkTheme, lightTheme } from './src/theme/colors';
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function App() {
+  const { t } = useTranslation();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const theme = isDark ? darkTheme : lightTheme;
@@ -54,8 +57,8 @@ export default function App() {
         ]}
       >
         <Ionicons name="code-slash" size={64} color="#FFFFFF" />
-        <Text style={styles.splashTitle}>CodeRetain</Text>
-        <Text style={styles.splashSubtitle}>Keep your edge</Text>
+        <Text style={styles.splashTitle}>{t('app.name')}</Text>
+        <Text style={styles.splashSubtitle}>{t('app.tagline')}</Text>
       </Animated.View>
     );
   }

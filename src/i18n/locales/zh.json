@@ -1,0 +1,61 @@
+{
+  "app": {
+    "name": "CodeRetain",
+    "tagline": "保持领先"
+  },
+  "common": {
+    "loading": "加载题目中...",
+    "correct": "✓ 正确！",
+    "incorrect": "✗ 错误",
+    "streak": "连续天数",
+    "today": "今日",
+    "questions": "题"
+  },
+  "today": {
+    "complete": "挑战完成！",
+    "subtitle": "太棒了！你已完成今天的编程练习。",
+    "startOver": "重新开始"
+  },
+  "stats": {
+    "title": "统计",
+    "totalAnswered": "总共答题",
+    "streak": "连续天数",
+    "last30Days": "最近 30 天",
+    "categoryAccuracy": "分类正确率"
+  },
+  "settings": {
+    "title": "设置",
+    "dailyReminder": "每日提醒",
+    "reminderLabel": "每日练习提醒",
+    "reminderTime": "提醒时间",
+    "difficulty": "难度等级",
+    "beginner": "初级",
+    "intermediate": "中级",
+    "advanced": "高级",
+    "beginnerDesc": "基础知识点",
+    "intermediateDesc": "实战问题",
+    "advancedDesc": "专家级挑战",
+    "language": "语言",
+    "languageLabel": "应用语言",
+    "questionLanguage": "题目语言",
+    "questionLangEN": "English",
+    "questionLangZH": "中文",
+    "about": "关于",
+    "version": "v1.0.0",
+    "description": "每日 5 分钟编程练习，帮你巩固技能。专为希望在 AI 时代保持竞争力的开发者设计。"
+  },
+  "categories": {
+    "Regex": "正则表达式",
+    "SQL": "SQL",
+    "Git": "Git",
+    "Shell": "Shell",
+    "Design Patterns": "设计模式",
+    "Docker": "Docker",
+    "JavaScript": "JavaScript"
+  },
+  "difficulty": {
+    "Beginner": "初级",
+    "Intermediate": "中级",
+    "Advanced": "高级"
+  }
+}
