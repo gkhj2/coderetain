@@ -10,26 +10,24 @@
     "@react-navigation/native": "^7.3.3",
     "expo": "~56.0.12",
     "expo-asset": "~56.0.17",
-    "expo-build-properties": "^0.14.2",
+    "expo-build-properties": "~56.0.19",
     "expo-font": "~56.0.7",
-    "expo-modules-core": "~56.0.17",
-    "expo-notifications": "~0.30.6",
-    "expo-splash-screen": "~0.30.6",
-    "expo-sqlite": "~15.2.6",
+    "expo-notifications": "~56.0.18",
+    "expo-splash-screen": "~56.0.10",
+    "expo-sqlite": "~56.0.5",
     "expo-status-bar": "~56.0.4",
     "i18next": "^26.3.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-i18next": "^17.0.8",
     "react-native": "0.85.3",
-    "react-native-safe-area-context": "^5.8.0",
+    "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "^4.25.2",
     "react-native-web": "^0.21.2"
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
     "babel-preset-expo": "^56.0.15",
-    "gh-pages": "^6.3.0",
     "typescript": "~6.0.3"
   },
   "scripts": {
@@ -38,7 +36,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "build:web": "npx expo export --platform web",
-    "deploy": "npm run build:web && npx gh-pages -d dist"
+    "deploy": "npx expo export --platform web"
   },
   "private": true
 }
